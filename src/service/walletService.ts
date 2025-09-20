@@ -39,6 +39,15 @@ class WalletService {
         break;
       }
 
+      console.log(`Receiving BAN deposits for seedIx ${seedIx}`);
+      const response = await bananojs.receiveBananoDepositsForSeed(
+        seed,
+        seedIx,
+        this.defaultRepresentative
+      );
+
+      console.log("Receive block response:", response);
+
       console.log(`Found ${hashes.length} pending block(s). Processing…`);
 
       // 3. Receive each pending block
@@ -46,14 +55,6 @@ class WalletService {
         console.log(
           `Receiving pending block ${hash} for account ${account} — amount: ${JSON.stringify(blocks[hash])}`
         );
-
-        const response = await bananojs.receiveBananoDepositsForSeed(
-          seed,
-          seedIx,
-          this.defaultRepresentative
-        );
-
-        console.log("Receive block response:", response);
       }
 
       // Small delay to avoid hitting rate limits
