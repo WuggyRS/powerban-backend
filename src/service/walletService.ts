@@ -24,8 +24,8 @@ class WalletService {
   public async claimPendingBan(seedIx: number) {
     // 1. Determine representative (fall back if unopened)
     const seed = await this.getSeed();
-    const { address } = await this.deriveBanAddress(seedIx);
-    const account = address;
+    // const { address } = await this.deriveBanAddress(seedIx);
+    // const account = address;
 
     console.log(`Receiving BAN deposits for seedIx ${seedIx}`);
     const response = await bananojs.receiveBananoDepositsForSeed(
@@ -36,30 +36,30 @@ class WalletService {
 
     console.log("Receive block response:", response);
 
-    // 2. Loop up to 10 times until there are no pending blocks
-    for (let i = 0; i < 10; i++) {
-      // Fetch up to 100 pending blocks
-      const pending = await bananojs.getAccountsPending([account], 100, true);
+    // // 2. Loop up to 10 times until there are no pending blocks
+    // for (let i = 0; i < 10; i++) {
+    //   // Fetch up to 100 pending blocks
+    //   const pending = await bananojs.getAccountsPending([account], 100, true);
 
-      const blocks = pending?.blocks ?? {};
-      const hashes = Object.keys(blocks);
+    //   const blocks = pending?.blocks ?? {};
+    //   const hashes = Object.keys(blocks);
 
-      if (hashes.length === 0) {
-        break;
-      }
+    //   if (hashes.length === 0) {
+    //     break;
+    //   }
 
-      console.log(`Found ${hashes.length} pending block(s). Processing…`);
+    //   console.log(`Found ${hashes.length} pending block(s). Processing…`);
 
-      // 3. Receive each pending block
-      for (const hash of hashes) {
-        console.log(
-          `Receiving pending block ${hash} for account ${account} — amount: ${JSON.stringify(blocks[hash])}`
-        );
-      }
+    //   // 3. Receive each pending block
+    //   for (const hash of hashes) {
+    //     console.log(
+    //       `Receiving pending block ${hash} for account ${account} — amount: ${JSON.stringify(blocks[hash])}`
+    //     );
+    //   }
 
-      // Small delay to avoid hitting rate limits
-      await new Promise(res => setTimeout(res, 1000));
-    }
+    //   // Small delay to avoid hitting rate limits
+    //   await new Promise(res => setTimeout(res, 1000));
+    // }
   }
 
   public async sendBan(seedIx: string, toAccount: string, amount: string) {
