@@ -36,6 +36,9 @@ class WalletService {
 
     console.log("Receive block response:", response);
 
+    // Delay for letting the receive process
+    await new Promise(res => setTimeout(res, 1000));
+
     // // 2. Loop up to 10 times until there are no pending blocks
     // for (let i = 0; i < 10; i++) {
     //   // Fetch up to 100 pending blocks
