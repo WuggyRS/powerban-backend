@@ -131,7 +131,7 @@ class DrawService {
 
   public async getTodayDraw() {
     return await knex("draws")
-      .whereRaw("draw_date = CURRENT_DATE")
+      .whereRaw("draw_date = (CURRENT_DATE AT TIME ZONE 'America/Chicago')")
       .andWhereNot("status", "completed")
       .first();
   }

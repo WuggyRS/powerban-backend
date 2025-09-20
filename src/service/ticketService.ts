@@ -47,7 +47,7 @@ class TicketService {
     }
 
     // Transfer the funds to the operator wallet
-    console.log(`Transferring funds to operator account`);
+    console.log(`Transferring funds (${totalCost} BAN) to operator account`);
     const operatorWalletIndex = 0;
     const operatorAccount = await walletService.deriveBanAddress(operatorWalletIndex);
     const purchaseTxHash = await walletService.sendBan(String(accountIndex), operatorAccount.address, String(totalCost));
