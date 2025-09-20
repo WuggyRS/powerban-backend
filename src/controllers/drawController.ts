@@ -14,10 +14,8 @@ export async function nextDraw(req: Request, res: Response) {
       res.status(404).json({ error: "Today's draw not found" });
       return;
     }
-    const nextDrawDate = new Date(`${upcomingDraw.draw_date}T23:59:00-05:00`)
-    const nextDrawLocaleString = nextDrawDate.toLocaleString('en-US', { timeZone: 'America/Chicago' });
-
-    res.json({ nextDraw: nextDrawLocaleString });
+    const nextDrawDate = new Date(`${upcomingDraw.draw_date}T23:59:00-05:00`);
+    res.json({ nextDraw: nextDrawDate.toISOString() });
   }
 }
 
