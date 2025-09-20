@@ -135,15 +135,6 @@ class DrawService {
       .andWhereNot("status", "completed")
       .first();
 
-      // Temporary for debugging purposes
-      const query = knex("draws")
-        .whereRaw("draw_date = CURRENT_DATE")
-        .andWhere(function () {
-          this.where("status", "!=", "completed").orWhereNull("status");
-        });
-
-      console.log(query.toSQL().toNative());
-
       return result;
   }
 
