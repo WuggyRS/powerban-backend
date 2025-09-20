@@ -10,7 +10,11 @@ export async function nextDraw(req: Request, res: Response) {
     res.json({ nextDraw: new Date(next10).toISOString() });
   } else {
     const upcomingDraw = await drawService.getTodayDraw();
-    res.json({ nextDraw: upcomingDraw?.toISOString() });
+    if (!upcomingDraw) {
+      res.status(404).json({ error: "Today's draw not found" });
+      return;
+    }
+    res.json({ nextDraw: upcomingDraw.toISOString() });
   }
 }
 
