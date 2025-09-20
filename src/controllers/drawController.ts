@@ -40,6 +40,8 @@ export async function todayDraw(req: Request, res: Response) {
   const draw = await drawService.getTodayDraw();
 
   if (!draw) {
+    console.log(`todayDraw draw not found`);
+    console.log(draw);
     res.status(404).json({ success: false });
     return;
   }
