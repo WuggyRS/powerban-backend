@@ -9,15 +9,8 @@ export async function nextDraw(req: Request, res: Response) {
     const next10 = Math.ceil(ms / (10 * 60 * 1000)) * (10 * 60 * 1000);
     res.json({ nextDraw: new Date(next10).toISOString() });
   } else {
-    const nowCT = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
-    const ctDate = new Date(nowCT);
-    const nextDrawCT = new Date(ctDate);
-    nextDrawCT.setHours(23, 59, 0, 0);
-    if (ctDate > nextDrawCT) {
-      // If it's already past 11:59 CT, use tomorrow
-      nextDrawCT.setDate(nextDrawCT.getDate() + 1);
-    }
-    res.json({ nextDraw: nextDrawCT.toISOString() });
+    const upcomingDraw = await drawService.getTodayDraw();
+    res.json({ nextDraw: upcomingDraw?.toISOString() });
   }
 }
 
