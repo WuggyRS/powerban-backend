@@ -130,12 +130,10 @@ class DrawService {
   }
 
   public async getTodayDraw() {
-    const result = await knex("draws")
+    return await knex("draws")
       .whereRaw("draw_date = CURRENT_DATE")
       .andWhereNot("status", "completed")
       .first();
-
-      return result;
   }
 
   public async getPreviousDraw() {
@@ -143,6 +141,15 @@ class DrawService {
       .where("status", "completed")
       .orderBy("draw_date", "desc")
       .first();
+  }
+
+  public async getTicketCount(drawId: string): Promise<number> {
+    const result = await knex("tickets")
+      .where({ draw_id: drawId })
+      .count<{ count: string }>("id as count")
+      .first();
+
+    return result ? parseInt(result.count, 10) : 0;
   }
 
   // Simple algorithm for now, will replace this with transaction hash based number generation

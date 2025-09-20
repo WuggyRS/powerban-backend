@@ -44,9 +44,12 @@ export async function todayDraw(req: Request, res: Response) {
     return;
   }
 
+  const ticketsBought = await drawService.getTicketCount(draw.id);
+
   res.json({
     success: true,
     drawDate: draw.draw_date,
     jackpot: draw.jackpot,
+    ticketsBought,
   });
 }
