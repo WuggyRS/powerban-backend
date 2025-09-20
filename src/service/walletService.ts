@@ -27,6 +27,15 @@ class WalletService {
     const { address } = await this.deriveBanAddress(seedIx);
     const account = address;
 
+    console.log(`Receiving BAN deposits for seedIx ${seedIx}`);
+    const response = await bananojs.receiveBananoDepositsForSeed(
+      seed,
+      seedIx,
+      this.defaultRepresentative
+    );
+
+    console.log("Receive block response:", response);
+
     // 2. Loop up to 10 times until there are no pending blocks
     for (let i = 0; i < 10; i++) {
       // Fetch up to 100 pending blocks
@@ -38,15 +47,6 @@ class WalletService {
       if (hashes.length === 0) {
         break;
       }
-
-      console.log(`Receiving BAN deposits for seedIx ${seedIx}`);
-      const response = await bananojs.receiveBananoDepositsForSeed(
-        seed,
-        seedIx,
-        this.defaultRepresentative
-      );
-
-      console.log("Receive block response:", response);
 
       console.log(`Found ${hashes.length} pending block(s). Processing…`);
 
