@@ -5,14 +5,14 @@ import walletService from "./walletService.js";
 class DrawService {
   public async getOrCreateTodayDraw() {
     let draw = await knex("draws")
-      .whereRaw("draw_date = CURRENT_DATE")
+      .whereRaw("draw_date = (now() AT TIME ZONE 'America/Chicago')::date")
       .first();
 
     if (!draw) {
       [draw] = await knex("draws")
         .insert({
           id: uuidv4(),
-          draw_date: knex.raw("CURRENT_DATE"),
+          draw_date: knex.raw("(now() AT TIME ZONE 'America/Chicago')::date"),
           status: "scheduled",
         })
         .returning("*");
