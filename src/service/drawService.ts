@@ -23,11 +23,6 @@ class DrawService {
 
   public async completeDraw(drawId: string) {
     const winningNumbers = this.generateWinningNumbers();
-    const nowCT = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
-    const drawDate = new Date(nowCT).toISOString().slice(0, 10);
-    const tomorrowDate = new Date(new Date(drawDate).getTime() + 24*10*60*1000)
-                          .toISOString().slice(0, 10);
-
     console.log(`Winning numbers: ${JSON.stringify(winningNumbers)}`);
 
     await knex.transaction(async (trx) => {
@@ -35,6 +30,9 @@ class DrawService {
         .where({ id: drawId })
         .forUpdate()
         .first();
+
+      const nowCT = new Date(`${draw.draw_date}T23:59:00-05:00`).toLocaleString("en-US", { timeZone: "America/Chicago" });
+      const tomorrowDate = new Date(new Date(nowCT).getTime() + 24*10*60*1000).toISOString().slice(0, 10);
 
       const jackpotAmount = draw.jackpot || 1000;
       const operatorIndex = 0;
