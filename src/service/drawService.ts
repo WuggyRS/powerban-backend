@@ -47,31 +47,45 @@ class DrawService {
       const allTickets = await trx("tickets")
         .where({ draw_id: drawId });
 
-      const winners = allTickets.filter((ticket) => {
-        const nums = ticket.numbers as number[];
-        return (
-          nums.length === winningNumbers.length &&
-          nums.every((n, idx) => n === winningNumbers[idx])
-        );
-      });
-      console.log(`Winning tickets: ${winners.length}`);
+      const winners = allTickets.filter(t => this.countMatches(t.numbers as number[], winningNumbers) === 5);
+      const match4 = allTickets.filter(t => this.countMatches(t.numbers as number[], winningNumbers) === 4);
+      const match3 = allTickets.filter(t => this.countMatches(t.numbers as number[], winningNumbers) === 3);
+      const match2 = allTickets.filter(t => this.countMatches(t.numbers as number[], winningNumbers) === 2);
+
+      console.log(`Match5 (jackpot) winners: ${winners.length}`);
+      console.log(`Match4 winners: ${match4.length}`);
+      console.log(`Match3 winners: ${match3.length}`);
+      console.log(`Match2 winners: ${match2.length}`);
+
+      const prizeLevels = [
+        { name: "winner", tickets: winners, amount: jackpotAmount },
+        { name: "match4", tickets: match4, amount: 1000 },
+        { name: "match3", tickets: match3, amount: 500 },
+        { name: "match2", tickets: match2, amount: 250 },
+      ];
 
       let winnerRows: any[] = [];
 
-      if (winners.length > 0) {
-        const prizePerWinnerBAN = Number((jackpotAmount / winners.length).toFixed(6));
+      console.log(`Claiming operator funds`);
+      await walletService.claimPendingBan(operatorIndex);
+
+      for (const level of prizeLevels) {
+        if (level.tickets.length === 0 || level.amount <= 0) {
+          console.log(`Level ${level.name} had no winners, skipping`);
+          continue;
+        }
+
+        const prizePerWinnerBAN = Number((level.amount / level.tickets.length).toFixed(6));
         const prizePerWinnerRaw =
           (BigInt(Math.round(prizePerWinnerBAN * 1e6)) * 10n ** 23n).toString();
 
-        console.log(`Each winner gets ${prizePerWinnerBAN} BAN`);
+        console.log(`${level.name}: Each winner gets ${prizePerWinnerBAN} BAN`);
 
-        console.log(`Claiming operator funds`);
-        await walletService.claimPendingBan(operatorIndex);
-
-        for (const ticket of winners) {
+        for (const ticket of level.tickets) {
           const winnerWallet = ticket.win_address;
+
           if (!winnerWallet) {
-            console.warn(`No wallet found for player ${ticket.player_id}`);
+            console.warn(`No wallet for player ${ticket.player_id}`);
             continue;
           }
 
@@ -80,7 +94,8 @@ class DrawService {
             winnerWallet,
             String(prizePerWinnerBAN),
           );
-          console.log(`Paid ${winnerWallet} ${prizePerWinnerBAN} BAN, tx hash: ${payoutTxHash}`)
+
+          console.log(`Paid ${winnerWallet} ${prizePerWinnerBAN} BAN, tx hash: ${payoutTxHash}`);
 
           winnerRows.push({
             id: uuidv4(),
@@ -88,13 +103,14 @@ class DrawService {
             draw_id: drawId,
             prize_amount_raw: prizePerWinnerRaw,
             payout_tx_hash: payoutTxHash,
+            prize_tier: level.name,
             created_at: new Date(),
           });
         }
+      }
 
-        if (winnerRows.length > 0) {
-          await trx("winners").insert(winnerRows);
-        }
+      if (winnerRows.length > 0) {
+        await trx("winners").insert(winnerRows);
       }
 
       await trx("draws")
@@ -104,6 +120,9 @@ class DrawService {
           completed_at: new Date(),
           winning_numbers: winningNumbers,
           winners: winners.length,
+          match4: match4.length,
+          match3: match3.length,
+          match2: match2.length,
         });
 
       // TODO: Roll over the ticket sales into the next jackpot
@@ -158,6 +177,10 @@ class DrawService {
       if (!nums.includes(n)) nums.push(n);
     }
     return nums.sort((a, b) => a - b);
+  }
+
+  private countMatches(ticketNums: number[], winNums: number[]) {
+    return ticketNums.filter((n) => winNums.includes(n)).length;
   }
 }
 
