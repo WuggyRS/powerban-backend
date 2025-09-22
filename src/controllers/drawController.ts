@@ -32,10 +32,12 @@ export async function previousDraw(req: Request, res: Response) {
     drawDate: draw.draw_date,
     winningNumbers: draw.winning_numbers,
     jackpot: draw.jackpot,
-    winners: draw.winners,
-    match4: draw.match4,
-    match3: draw.match3,
-    match2: draw.match2,
+    winners: {
+      winners: draw.winners,
+      match4: draw.match4,
+      match3: draw.match3,
+      match2: draw.match2,
+    },
   });
 }
 
