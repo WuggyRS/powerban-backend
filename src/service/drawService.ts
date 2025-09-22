@@ -61,7 +61,7 @@ class DrawService {
         { name: "winner", tickets: winners, amount: jackpotAmount },
         { name: "match4", tickets: match4, amount: 1000 },
         { name: "match3", tickets: match3, amount: 500 },
-        { name: "match2", tickets: match2, amount: 250 },
+        { name: "match2", tickets: match2, amount: 100 },
       ];
 
       let winnerRows: any[] = [];
