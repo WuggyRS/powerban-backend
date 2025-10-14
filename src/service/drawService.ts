@@ -32,7 +32,9 @@ class DrawService {
         .first();
 
       const nowCT = new Date(`${draw.draw_date}T23:59:00-05:00`).toLocaleString("en-US", { timeZone: "America/Chicago" });
-      const tomorrowDate = new Date(new Date(nowCT).getTime() + 24*10*60*1000).toISOString().slice(0, 10);
+      const tomorrowDate = new Date(new Date(nowCT).getTime() + 24 * 10 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10);
 
       const jackpotAmount = draw.jackpot || 1000;
       const operatorIndex = 0;
@@ -89,23 +91,27 @@ class DrawService {
             continue;
           }
 
-          const payoutTxHash = await walletService.sendBan(
-            String(operatorIndex),
-            winnerWallet,
-            String(prizePerWinnerBAN),
-          );
+          try {
+            const payoutTxHash = await walletService.sendBan(
+              String(operatorIndex),
+              winnerWallet,
+              String(prizePerWinnerBAN),
+            );
 
-          console.log(`Paid ${winnerWallet} ${prizePerWinnerBAN} BAN, tx hash: ${payoutTxHash}`);
+            console.log(`Paid ${winnerWallet} ${prizePerWinnerBAN} BAN, tx hash: ${payoutTxHash}`);
 
-          winnerRows.push({
-            id: uuidv4(),
-            ticket_id: ticket.id,
-            draw_id: drawId,
-            prize_amount_raw: prizePerWinnerRaw,
-            payout_tx_hash: payoutTxHash,
-            prize_tier: level.name,
-            created_at: new Date(),
-          });
+            winnerRows.push({
+              id: uuidv4(),
+              ticket_id: ticket.id,
+              draw_id: drawId,
+              prize_amount_raw: prizePerWinnerRaw,
+              payout_tx_hash: payoutTxHash,
+              prize_tier: level.name,
+              created_at: new Date(),
+            });
+          } catch (err) {
+            console.log(`Error while trying to pay out winner`, err);
+          }
         }
       }
 
